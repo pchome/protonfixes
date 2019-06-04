@@ -1,0 +1,22 @@
+w_metadata grabpointer=y settings \
+    title="Allow mouse capture (default)"
+w_metadata grabpointer=n settings \
+    title="Disallow mouse capture"
+
+load_grabpointer()
+{
+    case "$1" in
+        y|n) arg=$1;;
+        *) w_die "illegal value $1 for GrabPointer";;
+    esac
+
+    echo "Setting GrabPointer to $arg"
+    cat > "$W_TMP"/set-gptr.reg <<_EOF_
+REGEDIT4
+
+[HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver]
+"GrabPointer"="$arg"
+
+_EOF_
+    w_try_regedit "$W_TMP"/set-gptr.reg
+}
