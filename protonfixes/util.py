@@ -561,7 +561,7 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
         log.debug(conf.items(section))
 
     # set option
-    log.info('Addinging DXVK option: '+ str(opt) + ' = ' + str(val))
+    log.info('Adding DXVK option: '+ str(opt) + ' = ' + str(val))
     conf.set(section, opt, str(val))
 
     with open(cfile, 'w') as configfile:
