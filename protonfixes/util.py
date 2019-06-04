@@ -212,6 +212,25 @@ def protontricks(verb):
         winetricks_bin = which('winetricks')
         winetricks_cmd = [winetricks_bin, '--unattended'] + verb.split(' ')
 
+        #zenity_bin = which('zenity')
+        # https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
+        # https://docs.python.org/2/library/subprocess.html#replacing-shell-pipeline
+        # https://stackoverflow.com/questions/13332268/python-subprocess-command-with-pipe
+        zenity_cmd = [
+                '/usr/bin/zenity',
+                '--progress',
+                '--pulsate',
+                '--no-cancel',
+                '--auto-close',
+                '--width=320',
+                '--text',
+                '<b>ProtonFixes</b> is running the\n\
+<span font_desc="Terminus (TTF) 10" bgcolor="black" foreground="lightgrey">\
+$ winetricks ' + verb + ' \
+</span>\n\
+command, please wait...',
+                ]
+
         # check is verb a custom winetricks verb
         custom_verb = is_custom_verb(verb)
         if custom_verb:
@@ -237,8 +256,10 @@ def protontricks(verb):
 
             log.info('Using winetricks verb ' + verb)
             subprocess.call([env['WINESERVER'], '-w'], env=env)
-            process = subprocess.Popen(winetricks_cmd, env=env)
-            process.wait()
+            wt = subprocess.Popen(winetricks_cmd, env=env, stdout=subprocess.PIPE)
+            zt = subprocess.Popen(zenity_cmd, stdin=wt.stdout)
+            wt.stdout.close()
+            zt.communicate()
             _killhanging()
 
             # Check if verb recorded to winetricks log
