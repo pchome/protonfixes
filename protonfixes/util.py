@@ -504,7 +504,10 @@ def set_ini_options(ini_opts, cfile, base_path='user'):
 def read_dxvk_conf(cfp):
     """ Add fake [DEFAULT] section to dxvk.conf
     """
-    yield '['+ configparser.ConfigParser().default_section +']'
+    #yield '['+ configparser.ConfigParser().default_section +']'
+    # Recent DXVK support sections as executable names
+    # [DEFAULT] section will not work
+    yield '['+ get_game_exe_name() +']'
     yield from cfp
 
 
@@ -515,7 +518,8 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
     """
     conf = configparser.ConfigParser()
     conf.optionxform = str
-    section = conf.default_section
+    #section = conf.default_section
+    section = get_game_exe_name()
     dxvk_conf = os.path.join(get_game_install_path(), 'dxvk.conf')
 
     conf.read(cfile)
@@ -526,6 +530,12 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
 
         conf = configparser.ConfigParser()
         conf.optionxform = str
+
+        try:
+            conf.add_section(section)
+        except configparser.DuplicateSectionError:
+            pass
+
         conf.set(section, 'session', str(os.getpid()))
 
         if os.access(dxvk_conf, os.F_OK):
