@@ -13,9 +13,11 @@ class Log():
         self.pfx = 'ProtonFixes[' + str(os.getpid()) + '] '
         self.colors = {
             'RESET': '\u001b[0m',
-            'INFO': '\u001b[34m',
-            'WARN': '\u001b[33m',
-            'CRIT': '\u001b[31m',
+            'INFO': '\u001b[0;34m',
+            'ADD': '\u001b[1;32m',
+            'DEL': '\u001b[1;30m',
+            'WARN': '\u001b[0;33m',
+            'CRIT': '\u001b[0;31m',
             'DEBUG': '\u001b[35m'
         }
 
@@ -45,6 +47,18 @@ class Log():
         """
 
         self.log(msg, 'INFO')
+
+    def addition(self, msg):
+        """ Wrapper for printing "Adding" info messages
+        """
+
+        self.log(msg, 'ADD')
+
+    def deletion(self, msg):
+        """ Wrapper for printing "Removing" info messages
+        """
+
+        self.log(msg, 'DEL')
 
     def warn(self, msg):
         """ Wrapper for printing warning messages
