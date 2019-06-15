@@ -348,10 +348,17 @@ def replace_command(orig_str, repl_str):
     """ Make a commandline replacement in sys.argv
     """
 
+    old_game_name = get_game_exe_name()
+
     log.info('Changing ' + orig_str + ' to ' + repl_str)
     for idx, arg in enumerate(sys.argv):
         if orig_str in arg:
             sys.argv[idx] = arg.replace(orig_str, repl_str)
+
+    # dxvk_set_option() rely on a game name
+    new_game_name = get_game_exe_name()
+    if not new_game_name == old_game_name:
+        _dxvk_copy_config(old_game_name, new_game_name)
 
 def append_argument(argument):
     """ Append an argument to sys.argv
@@ -498,6 +505,25 @@ def set_ini_options(ini_opts, cfile, base_path='user'):
 
     with open(cfg_path, 'w') as configfile:
         conf.write(configfile)
+    return True
+
+
+def _dxvk_copy_config(old_game_name, new_game_name, cfile='/tmp/protonfixes_dxvk.conf'):
+    """ Copy section
+    """
+    if not os.path.exists(cfile):
+        return False
+
+    conf = configparser.ConfigParser()
+    conf.optionxform = str
+    try:
+        conf.read(cfile)
+        conf[new_game_name] = conf[old_game_name]
+        with open(cfile, 'w') as configfile:
+            conf.write(configfile)
+        log.addition('Changing DXVK config: from '+ str(old_game_name) + ' to ' + str(new_game_name))
+    except:
+        pass
     return True
 
 
