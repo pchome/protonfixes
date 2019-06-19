@@ -368,13 +368,22 @@ def append_argument(argument):
     sys.argv.append(argument)
     log.debug('New commandline: ' + str(sys.argv))
 
-def set_environment(envvar, value):
-    """ Add or override an environment value
+def set_environment(envvar, value, separator=None):
+    """ Add, extend or override an environment value
     """
 
-    log.addition('Adding env: ' + envvar + '=' + value)
-    os.environ[envvar] = value
-    protonmain.env[envvar] = value
+    os_env = value
+    pm_env = value
+
+    if separator is not None:
+        if envvar in os.environ:
+            os_env = os.environ[envvar] + separator + value
+        if envvar in protonmain.env:
+            pm_env = protonmain.env[envvar] + separator + value
+
+    log.addition('Adding env: ' + envvar + '=' + pm_env)
+    os.environ[envvar] = os_env
+    protonmain.env[envvar] = pm_env
 
 def del_environment(envvar):
     """ Remove an environment variable
