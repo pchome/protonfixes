@@ -357,7 +357,7 @@ def append_argument(argument):
     """ Append an argument to sys.argv
     """
 
-    log.addition('Adding argument ' + argument)
+    log.addition('arg: ' + argument)
     sys.argv.append(argument)
     log.debug('New commandline: ' + str(sys.argv))
 
@@ -374,7 +374,7 @@ def set_environment(envvar, value, separator=None):
         if envvar in protonmain.env:
             pm_env = protonmain.env[envvar] + separator + value
 
-    log.addition('Adding env: ' + envvar + '=' + pm_env)
+    log.addition('env: ' + envvar + '=' + pm_env)
     os.environ[envvar] = os_env
     protonmain.env[envvar] = pm_env
 
@@ -382,7 +382,7 @@ def del_environment(envvar):
     """ Remove an environment variable
     """
 
-    log.deletion('Removing env: ' + envvar)
+    log.deletion('env: ' + envvar)
     if envvar in os.environ:
         del os.environ[envvar]
     if envvar in protonmain.env:
@@ -520,7 +520,7 @@ def set_ini_options(ini_opts, cfile, base_path='user'):
     conf.read(cfg_path)
 
     # set options
-    log.addition('Adding INI options into '+cfile+':\n'+ str(ini_opts))
+    log.addition('INI options into '+cfile+':\n'+ str(ini_opts))
     conf.read_string(ini_opts)
 
     with open(cfg_path, 'w') as configfile:
@@ -564,7 +564,7 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
         log.debug(conf.items(section))
 
     # set option
-    log.addition('Adding DXVK option: '+ str(opt) + ' = ' + str(val))
+    log.addition('DXVK: '+ str(opt) + ' = ' + str(val))
     conf.set(section, opt, str(val))
 
     with open(cfile, 'w') as configfile:
