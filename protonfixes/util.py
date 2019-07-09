@@ -348,17 +348,10 @@ def replace_command(orig_str, repl_str):
     """ Make a commandline replacement in sys.argv
     """
 
-    old_game_name = get_game_exe_name()
-
     log.info('Changing ' + orig_str + ' to ' + repl_str)
     for idx, arg in enumerate(sys.argv):
         if orig_str in arg:
             sys.argv[idx] = arg.replace(orig_str, repl_str)
-
-    # dxvk_set_option() rely on a game name
-    new_game_name = get_game_exe_name()
-    if not new_game_name == old_game_name:
-        _dxvk_copy_config(old_game_name, new_game_name)
 
 def append_argument(argument):
     """ Append an argument to sys.argv
@@ -535,39 +528,12 @@ def set_ini_options(ini_opts, cfile, base_path='user'):
     return True
 
 
-def _dxvk_copy_config(old_game_name, new_game_name, cfile='/tmp/protonfixes_dxvk.conf'):
-    """ Copy section
-    """
-    if not os.path.exists(cfile):
-        return False
-
-    conf = configparser.ConfigParser()
-    conf.optionxform = str
-    try:
-        conf.read(cfile)
-        conf[new_game_name] = conf[old_game_name]
-        with open(cfile, 'w') as configfile:
-            conf.write(configfile)
-        log.addition('Changing DXVK config: from '+ str(old_game_name) + ' to ' + str(new_game_name))
-    except:
-        pass
-    return True
-
-
 def read_dxvk_conf(cfp):
-    """ Add fake [gamename] section to dxvk.conf
-    """
-    #yield '['+ configparser.ConfigParser().default_section +']'
-    # Recent DXVK support sections as executable names
-    # [DEFAULT] section will not work
-    yield '['+ get_game_exe_name() +']'
-    yield from cfp
-
-def read_old_dxvk_conf(cfp):
     """ Add fake [DEFAULT] section to dxvk.conf
     """
     yield '['+ configparser.ConfigParser().default_section +']'
     yield from cfp
+
 
 def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
     """ Create custom DXVK config file
@@ -576,8 +542,7 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
     """
     conf = configparser.ConfigParser()
     conf.optionxform = str
-    #section = conf.default_section
-    section = get_game_exe_name()
+    section = conf.default_section
     dxvk_conf = os.path.join(get_game_install_path(), 'dxvk.conf')
 
     conf.read(cfile)
@@ -588,20 +553,10 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
 
         conf = configparser.ConfigParser()
         conf.optionxform = str
-
-        try:
-            conf.add_section(section)
-        except configparser.DuplicateSectionError:
-            pass
-
         conf.set(section, 'session', str(os.getpid()))
 
         if os.access(dxvk_conf, os.F_OK):
-            try:
-                conf.read_file(read_dxvk_conf(open(dxvk_conf)))
-            except configparser.DuplicateSectionError:
-                conf.read_file(read_old_dxvk_conf(open(dxvk_conf)))
-
+            conf.read_file(read_dxvk_conf(open(dxvk_conf)))
         log.debug(conf.items(section))
 
     # set option
