@@ -18,9 +18,12 @@ def game_id():
     """ Trys to return the game id from environment variables
     """
 
-    if 'SteamAppId' in os.environ:
+    # For non-steam games we only care about pfx and gamefix ids match
+    is_nonsteam = 'SteamAppId' in os.environ and os.environ['SteamAppId'] == '0'
+
+    if 'SteamAppId' in os.environ and not is_nonsteam:
         return os.environ['SteamAppId']
-    if 'SteamGameId' in os.environ:
+    if 'SteamGameId' in os.environ and not is_nonsteam:
         return os.environ['SteamGameId']
     if 'STEAM_COMPAT_DATA_PATH' in os.environ:
         return re.findall(r'\d+', os.environ['STEAM_COMPAT_DATA_PATH'])[-1]
